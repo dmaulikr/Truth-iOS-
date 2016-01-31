@@ -15,6 +15,9 @@ class ViewController: UIViewController {
     //The list of requested items
     var itemList = [String]()
     
+   
+    //Possible user output TODO
+    @IBOutlet weak var result: UILabel!
     //Prompts the user to enter a username
     @IBOutlet weak var textPrompt: UILabel!
     //A textbox where the user inputs a username
@@ -33,26 +36,28 @@ class ViewController: UIViewController {
     /** This function retrieves data for an entered user 
         and displays their subclass and weapons */
     @IBAction func searchButton(sender: AnyObject) {
-        if userInput == "" {
-            return
-        }
-        guard let username:String = userInput.text else {
-            return
-        }
+        let username:String = userInput.text!
         let headers = [
             "X-API-Key": "ee2040efe9ef447f81aed2fe8ae794e3"
         ]
-        //TODO:Needs error checking for false users
+        //TODO:Needs error checking for false users and optional PS4 compadibility
         Alamofire.request(.GET, "http://www.bungie.net/Platform/Destiny/SearchDestinyPlayer/1/\(username)",
-            //TODO: add button for choosing playstation or xbox, use it to set serach player value
             headers: headers).responseJSON() {
                 (JSON) in
                 let data = JSON
-                //dataArray is the returned data from bungie parsed into lines
-                var dataArray = String(data).characters.split{$0 == "\n"}.map(String.init)
-                let membershipId = dataArray[10][dataArray[10].startIndex.advancedBy(27)..<dataArray[10].endIndex.advancedBy(-1)]
-                let membershipType = dataArray[11][dataArray[11].startIndex.advancedBy(29)..<dataArray[11].endIndex.advancedBy(-1)]
-                self.getInventoryData(membershipId, membershipType: membershipType, numItems: 4)
+                let dataArray = String(data).characters.split{$0 == "\n"}.map(String.init)
+                var membershipId: String = ""
+                var membershipType: String = ""
+                print("Search Started")
+                for line in dataArray {
+                    if line.containsString("membershipType") {
+                        membershipType = line[line.startIndex.advancedBy(29)..<line.endIndex.advancedBy(-1)]
+                    }
+                    if line.containsString("membershipId") {
+                        membershipId = line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)]
+                    }
+                }
+            self.getInventoryData(membershipId, membershipType: membershipType, numItems: 9)
         }
     }
     
@@ -68,43 +73,51 @@ class ViewController: UIViewController {
                 //dataArray is the returned data from bungie parsed into lines
                 let dataArray = String(data).characters.split{$0 == "\n"}.map(String.init)
                 var result = [String]()
-                for var index = 0; index < numItems; ++index {
-                    if (index == 0) {
-                        result.append(dataArray[46][dataArray[46].startIndex.advancedBy(47)..<dataArray[46].endIndex.advancedBy(-1)])
-                    }
-                    else {
-                        //TODO needs error checking, so does everything else
-                        result.append(dataArray[131+13*index][dataArray[131+13*index].startIndex.advancedBy(47)..<dataArray[131+13*index].endIndex.advancedBy(-1)])
+                var count = 0
+                print("Item Hashes Found")
+                for line in dataArray {
+                    if line.containsString("itemHash") && count < numItems {
+                        result.append(line[line.startIndex.advancedBy(47)..<line.endIndex.advancedBy(-1)])
+                        count++
                     }
                 }
                 self.getItemData(result)
         }
     }
     
+    
     /** gets data for a list of supplied items, returns them as a list of String */
     func getItemData(items: [String]) {
-        for var i = 0; i < items.endIndex; i++ {
+        for item in items {
             let headers = [
                 "X-API-Key": "ee2040efe9ef447f81aed2fe8ae794e3"
             ]
-            Alamofire.request(.GET, "http://www.bungie.net/Platform/Destiny/Manifest/InventoryItem/\(items[i])",
+            Alamofire.request(.GET, "http://www.bungie.net/Platform/Destiny/Manifest/InventoryItem/\(item)",
                 headers: headers).responseJSON() {
                     (JSON) in
                     let data = JSON
                     //dataArray is the returned data from bungie parsed into lines
                     let dataArray = String(data).characters.split{$0 == "\n"}.map(String.init)
-                    if (i == 0) {
-                        self.itemList.append(dataArray[51][dataArray[51].startIndex.advancedBy(27)..<dataArray[51].endIndex.advancedBy(-1)])
-                    }
-                    else {
-                        self.itemList.append(dataArray[63][dataArray[63].startIndex.advancedBy(0)..<dataArray[63].endIndex.advancedBy(-1)])
+                    print("Item Decrypted")
+                    for line in dataArray {
+                        if line.containsString("itemName") {
+                            self.itemList.append(line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)])
+                            print(line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)])
+                        }
                     }
             }
+            //Allows the server to catch up, appears to be enough time at .05
+            NSThread.sleepForTimeInterval(0.05)
         }
-        for stuff in self.itemList {
-            print(stuff)
+        
+        for var i = 6; i < self.itemList.count; i++ {
+            print(self.itemList[i])
         }
+        self.result.hidden = false
+        print("Done!")
     }
+    
+    
     
     
 
