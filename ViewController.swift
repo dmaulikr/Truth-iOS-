@@ -10,13 +10,9 @@ import UIKit
 import Alamofire
 
 class ViewController: UIViewController {
-
-
-    //The list of requested items
-    var itemList = [String]()
     
-   
-    //Possible user output TODO
+    
+    // The first item result
     @IBOutlet weak var result: UILabel!
     //Prompts the user to enter a username
     @IBOutlet weak var textPrompt: UILabel!
@@ -27,21 +23,25 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
-
-  
-    /** This function retrieves data for an entered user 
-        and displays their subclass and weapons */
+    
+    
+    /** This function retrieves data for an entered user
+     and displays their subclass and weapons */
     @IBAction func searchButton(sender: AnyObject) {
         let username:String = userInput.text!
         let headers = [
             "X-API-Key": "ee2040efe9ef447f81aed2fe8ae794e3"
         ]
+        //TODO need to set up xbox vs ps4
+        var loginInfo = ""
+        loginInfo = "http://www.bungie.net/Platform/Destiny/SearchDestinyPlayer/1/\(username)"
+        
         //TODO:Needs error checking for false users and optional PS4 compadibility
-        Alamofire.request(.GET, "http://www.bungie.net/Platform/Destiny/SearchDestinyPlayer/1/\(username)",
+        Alamofire.request(.GET, "\(loginInfo)",
             headers: headers).responseJSON() {
                 (JSON) in
                 let data = JSON
@@ -57,7 +57,7 @@ class ViewController: UIViewController {
                         membershipId = line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)]
                     }
                 }
-            self.getInventoryData(membershipId, membershipType: membershipType, numItems: 9)
+                self.getInventoryData(membershipId, membershipType: membershipType, numItems: 9)
         }
     }
     
@@ -88,40 +88,35 @@ class ViewController: UIViewController {
     
     /** gets data for a list of supplied items, returns them as a list of String */
     func getItemData(items: [String]) {
-        for item in items {
-            let headers = [
-                "X-API-Key": "ee2040efe9ef447f81aed2fe8ae794e3"
-            ]
-            Alamofire.request(.GET, "http://www.bungie.net/Platform/Destiny/Manifest/InventoryItem/\(item)",
-                headers: headers).responseJSON() {
-                    (JSON) in
-                    let data = JSON
-                    //dataArray is the returned data from bungie parsed into lines
-                    let dataArray = String(data).characters.split{$0 == "\n"}.map(String.init)
-                    print("Item Decrypted")
-                    for line in dataArray {
-                        if line.containsString("itemName") {
-                            self.itemList.append(line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)])
-                            print(line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)])
+        for var i = 0; i < items.count; i++ {
+            if i == 0 || i >= 6 {
+                let headers = [
+                    "X-API-Key": "ee2040efe9ef447f81aed2fe8ae794e3"
+                ]
+                Alamofire.request(.GET, "http://www.bungie.net/Platform/Destiny/Manifest/InventoryItem/\(items[i])",
+                    headers: headers).responseJSON() {
+                        (JSON) in
+                        let data = JSON
+                        //dataArray is the returned data from bungie parsed into lines
+                        let dataArray = String(data).characters.split{$0 == "\n"}.map(String.init)
+                        print("Item Decrypted")
+                        let x = 0
+                        for line in dataArray {
+                            if line.containsString("itemName") && x == 0 {
+                                self.result.text = line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)]
+                                self.result.hidden = false
+                                print(line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)])
+                            }
                         }
-                    }
+                }
             }
             //Allows the server to catch up, appears to be enough time at .05
-            NSThread.sleepForTimeInterval(0.05)
+            NSThread.sleepForTimeInterval(0.1)
         }
-        
-        for var i = 6; i < self.itemList.count; i++ {
-            print(self.itemList[i])
-        }
-        self.result.hidden = false
-        print("Done!")
     }
     
     
     
-    
-
-        
 }
 
 
