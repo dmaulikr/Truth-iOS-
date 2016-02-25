@@ -11,13 +11,14 @@ import Alamofire
 
 class ViewController: UIViewController {
     
-    
-    // The first item result
+    // The desired items
     @IBOutlet weak var result: UILabel!
     //Prompts the user to enter a username
     @IBOutlet weak var textPrompt: UILabel!
     //A textbox where the user inputs a username
     @IBOutlet weak var userInput: UITextField!
+    //An array used to store data from the server
+    var userData = [String]()
     
     
     override func viewDidLoad() {
@@ -73,6 +74,7 @@ class ViewController: UIViewController {
                 //dataArray is the returned data from bungie parsed into lines
                 let dataArray = String(data).characters.split{$0 == "\n"}.map(String.init)
                 var result = [String]()
+                self.userData = result
                 var count = 0
                 print("Item Hashes Found")
                 for line in dataArray {
@@ -100,27 +102,29 @@ class ViewController: UIViewController {
                         //dataArray is the returned data from bungie parsed into lines
                         let dataArray = String(data).characters.split{$0 == "\n"}.map(String.init)
                         print("Item Decrypted")
-                        let x = 0
                         for line in dataArray {
-                            if line.containsString("itemName") && x == 0 {
-                                self.result.text = line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)]
-                                self.result.hidden = false
+                            if line.containsString("itemName") {
+                                self.userData.append(line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)])
                                 print(line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)])
                             }
+                            if self.userData.endIndex == 4 {
+                                var result = ""
+                                for item in self.userData {
+                                    result.appendContentsOf(item)
+                                    result.appendContentsOf("\n")
+                                }
+                                self.result.hidden = false
+                                self.result.text = result
+                            }
+                            
                         }
                 }
             }
             //Allows the server to catch up, appears to be enough time at .05
-            NSThread.sleepForTimeInterval(0.1)
+            NSThread.sleepForTimeInterval(0.2)
         }
     }
     
     
     
 }
-
-
-
-
-
-
