@@ -11,15 +11,24 @@ import Alamofire
 
 class ViewController: UIViewController {
     
-    // The desired items
+    // inventory printout #3
+    @IBOutlet weak var result3: UILabel!
+    // inventory printout #2
+    @IBOutlet weak var result2: UILabel!
+    // The desired inventory item print outs
     @IBOutlet weak var result: UILabel!
-    //Prompts the user to enter a username
+    // Prompts the user to enter a username
     @IBOutlet weak var textPrompt: UILabel!
-    //A textbox where the user inputs a username
+    // A textbox where the user inputs the first username
     @IBOutlet weak var userInput: UITextField!
-    //An array used to store data from the server
+    // Second username
+    @IBOutlet weak var userInput2: UITextField!
+    // Third username
+    @IBOutlet weak var userInput3: UITextField!
+    // An array used to store data from the server
     var userData = [String]()
-    
+    // a constant that tracks which player search is in progress
+    var searchNum = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,15 +42,38 @@ class ViewController: UIViewController {
     /** This function retrieves data for an entered user
      and displays their subclass and weapons */
     @IBAction func searchButton(sender: AnyObject) {
-        let username:String = userInput.text!
+        self.searchNum = 1
+        self.getUserData()
+    }
+    @IBAction func searchButton2(sender: AnyObject) {
+        self.searchNum = 2
+        self.getUserData()
+    }
+    @IBAction func searchButton3(sender: AnyObject) {
+        self.searchNum = 3
+        self.getUserData()
+    }
+    
+    func getUserData() {
+        var username = ""
+        
+        if self.searchNum == 1 {
+            username = userInput.text!
+        }
+        if self.searchNum == 2 {
+            username = userInput2.text!
+        }
+        if self.searchNum == 3 {
+            username = userInput3.text!
+        }
+        
+        
         let headers = [
             "X-API-Key": "ee2040efe9ef447f81aed2fe8ae794e3"
         ]
         //TODO need to set up xbox vs ps4
         var loginInfo = ""
         loginInfo = "http://www.bungie.net/Platform/Destiny/SearchDestinyPlayer/1/\(username)"
-        
-        //TODO:Needs error checking for false users and optional PS4 compadibility
         Alamofire.request(.GET, "\(loginInfo)",
             headers: headers).responseJSON() {
                 (JSON) in
@@ -90,6 +122,7 @@ class ViewController: UIViewController {
     
     /** gets data for a list of supplied items, returns them as a list of String */
     func getItemData(items: [String]) {
+        self.userData = []
         for var i = 0; i < items.count; i++ {
             if i == 0 || i >= 6 {
                 let headers = [
@@ -107,7 +140,7 @@ class ViewController: UIViewController {
                                 self.userData.append(line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)])
                                 print(line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)])
                             }
-                            if self.userData.endIndex == 4 {
+                            if self.userData.endIndex == 4 && self.searchNum == 1 {
                                 var result = ""
                                 for item in self.userData {
                                     result.appendContentsOf(item)
@@ -116,15 +149,33 @@ class ViewController: UIViewController {
                                 self.result.hidden = false
                                 self.result.text = result
                             }
+                            if self.userData.endIndex == 4 && self.searchNum == 2 {
+                                var result = ""
+                                for item in self.userData {
+                                    result.appendContentsOf(item)
+                                    result.appendContentsOf("\n")
+                                }
+                                self.result2.hidden = false
+                                self.result2.text = result
+                            }
+                            if self.userData.endIndex == 4 && self.searchNum == 3 {
+                                var result = ""
+                                for item in self.userData {
+                                    result.appendContentsOf(item)
+                                    result.appendContentsOf("\n")
+                                }
+                                self.result3.hidden = false
+                                self.result3.text = result
+                            }
+                            
                             
                         }
                 }
             }
             //Allows the server to catch up, appears to be enough time at .05
-            NSThread.sleepForTimeInterval(0.2)
+            NSThread.sleepForTimeInterval(0.1)
         }
     }
-    
     
     
 }
