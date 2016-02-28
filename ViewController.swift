@@ -27,7 +27,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var userInput3: UITextField!
     // An array used to store data from the server
     var userData = [String]()
-    // a constant that tracks which player search is in progress
+    // A constant that tracks which player search is in progress
     var searchNum = 0
     
     override func viewDidLoad() {
@@ -66,7 +66,7 @@ class ViewController: UIViewController {
         if self.searchNum == 3 {
             username = userInput3.text!
         }
-        
+
         
         let headers = [
             "X-API-Key": "ee2040efe9ef447f81aed2fe8ae794e3"
@@ -137,7 +137,12 @@ class ViewController: UIViewController {
                         print("Item Decrypted")
                         for line in dataArray {
                             if line.containsString("itemName") {
-                                self.userData.append(line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)])
+                                if self.userData.endIndex != 0 {
+                                    self.userData.append(line[line.startIndex.advancedBy(28)..<line.endIndex.advancedBy(-2)])
+                                }
+                                else {
+                                    self.userData.append(line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)])
+                                }
                                 print(line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)])
                             }
                             if self.userData.endIndex == 4 && self.searchNum == 1 {
@@ -167,8 +172,8 @@ class ViewController: UIViewController {
                                 self.result3.hidden = false
                                 self.result3.text = result
                             }
-                            
-                            
+
+
                         }
                 }
             }
