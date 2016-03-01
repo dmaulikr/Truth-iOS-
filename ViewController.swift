@@ -66,7 +66,7 @@ class ViewController: UIViewController {
         if self.searchNum == 3 {
             username = userInput3.text!
         }
-
+        
         
         let headers = [
             "X-API-Key": "ee2040efe9ef447f81aed2fe8ae794e3"
@@ -172,8 +172,11 @@ class ViewController: UIViewController {
                                 self.result3.hidden = false
                                 self.result3.text = result
                             }
-
-
+                            //                            if self.userData.endIndex == 4 {
+                            //                                self.additionalInfoRender()
+                            //                            }
+                            
+                            
                         }
                 }
             }
@@ -181,6 +184,15 @@ class ViewController: UIViewController {
             NSThread.sleepForTimeInterval(0.1)
         }
     }
+    
+    //TODO add some additional functionality with this method, perhaps a new file
+    //@IBOutlet weak var sunsingerImage: UIImageView!
+    /** based on user info, renders some bonus images and info */
+    //    func additionalInfoRender() {
+    //        if self.userData[0] == "Sunsinger" {
+    //            self.sunsingerImage.hidden = false
+    //        }
+    //    }
     
     
 }
