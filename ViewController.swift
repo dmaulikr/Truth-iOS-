@@ -8,16 +8,17 @@
 
 
 /** Current TODO Megathread
-- remove all instances of hard coded extractions of data
-- improve JSON parsing to be more functional and robust
-- implement delegates to handle GET methods to bungie web API
-- add more detailed documentation and make the data structure more modular
-- create more meaningful objects to confine data
-- add unit and efficientcy testing
+    - remove all instances of hard coded extractions of data
+    - improve JSON parsing to be more functional and robust
+    - implement delegates to handle GET methods to bungie web API
+    - add more detailed documentation and make the data structure more modular
+    - create more meaningful objects to confine data
+    - add unit and efficientcy testing
 */
 
 import UIKit
 import Alamofire
+
 
 class ViewController: UIViewController {
     
@@ -39,6 +40,8 @@ class ViewController: UIViewController {
     var userData = [String]()
     // A constant that tracks which player search is in progress
     var searchNum = 0
+    // An instance of the API access class
+    let service = BungeeApiService()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,51 +66,7 @@ class ViewController: UIViewController {
         self.searchNum = 3
         self.getUserData()
     }
-    
-    /** This function retrieves data for an entered user
-     and displays their subclass and weapons */
-    func getUserData() {
-        var username = ""
-        // determines which user input to utilize in the search
-        if self.searchNum == 1 {
-            username = userInput.text!
-        }
-        if self.searchNum == 2 {
-            username = userInput2.text!
-        }
-        if self.searchNum == 3 {
-            username = userInput3.text!
-        }
         
-        // allows access to the bungie web API
-        let headers = [
-            "X-API-Key": "ee2040efe9ef447f81aed2fe8ae794e3"
-        ]
-        //TODO need to set up xbox vs ps4
-        var loginInfo = ""
-        loginInfo = "http://www.bungie.net/Platform/Destiny/SearchDestinyPlayer/1/\(username)"
-        // Alamofire makes a call to the bungie API, returns a JSON object
-        Alamofire.request(.GET, "\(loginInfo)",
-            headers: headers).responseJSON() {
-                (JSON) in
-                let data = JSON
-                let dataArray = String(data).characters.split{$0 == "\n"}.map(String.init)
-                var membershipId: String = ""
-                var membershipType: String = ""
-                print("Search Started")
-                for line in dataArray {
-                    if line.containsString("membershipType") {
-                        membershipType = line[line.startIndex.advancedBy(29)..<line.endIndex.advancedBy(-1)]
-                    }
-                    if line.containsString("membershipId") {
-                        membershipId = line[line.startIndex.advancedBy(27)..<line.endIndex.advancedBy(-1)]
-                    }
-                }
-                //TODO rectify the numItems field, should really just return all items, depends on JSON parse
-                self.getInventoryData(membershipId, membershipType: membershipType, numItems: 9)
-        }
-    }
-    
     /** gets inventory data for the specified character, called from (@searchButton) */
     func getInventoryData(membershipId: String, membershipType: String, numItems: Int) {
         let headers = [
@@ -190,11 +149,11 @@ class ViewController: UIViewController {
                                 self.result3.hidden = false
                                 self.result3.text = result
                             }
-                            //                            if self.userData.endIndex == 4 {
-                            //                                self.additionalInfoRender()
-                            //                            }
-                            
-                            
+//                            if self.userData.endIndex == 4 {
+//                                self.additionalInfoRender()
+//                            }
+
+
                         }
                 }
             }
@@ -207,11 +166,11 @@ class ViewController: UIViewController {
     //TODO add some additional functionality with this method, perhaps a new file
     //@IBOutlet weak var sunsingerImage: UIImageView!
     /** based on user info, renders some bonus images and info */
-    //    func additionalInfoRender() {
-    //        if self.userData[0] == "Sunsinger" {
-    //            self.sunsingerImage.hidden = false
-    //        }
-    //    }
-    
+//    func additionalInfoRender() {
+//        if self.userData[0] == "Sunsinger" {
+//            self.sunsingerImage.hidden = false
+//        }
+//    }
+ 
     
 }
