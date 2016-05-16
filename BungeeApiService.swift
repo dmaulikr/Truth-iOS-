@@ -49,17 +49,26 @@ class BungeeApiService {
 //                //TODO rectify the numItems field, should really just return all items, depends on JSON parse
 //                self.getInventoryData(membershipId, membershipType: membershipType, numItems: 9)
         
-        //The following is based on a tutorial on NSURLSessions -- https://medium.com/swift-programming/learn-nsurlsession-using-swift-ebd80205f87c#.rjf8mbvna
+
+        
         //TODO dont forget to explicitly end the session to avoid data leaks!
         let session = NSURLSession.sharedSession()
         //A request to the bungee API with a specified call - bungeeRequest (an api call to bungee)
         let request = NSMutableURLRequest(URL: NSURL(string: "http://www.bungie.net/Platform/Destiny/\(bungeeRequest)")!)
-        let task = session.dataTaskWithRequest(request)
-        
-        
+        request.HTTPMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "X-API-Key: ee2040efe9ef447f81aed2fe8ae794e3")
+        //request.addValue("application/json", forHTTPHeaderField: "ee2040efe9ef447f81aed2fe8ae794e3")
+        //cache policy?
+        let task = session.dataTaskWithRequest(request) {(data, response, error) in
+            print(NSString(data: data!, encoding: NSUTF8StringEncoding))
         }
+        task.resume()
+        
     }
 
     
-    
+        
 }
+
+    
+    

@@ -18,6 +18,7 @@
 
 import UIKit
 import Alamofire
+let service = BungeeApiService()
 
 
 class ViewController: UIViewController {
@@ -65,6 +66,10 @@ class ViewController: UIViewController {
     @IBAction func searchButton3(sender: AnyObject) {
         self.searchNum = 3
         self.getUserData()
+    }
+    
+    func getUserData() {
+        service.getUserData("SearchDestinyPlayer/1/J3SUS47")
     }
         
     /** gets inventory data for the specified character, called from (@searchButton) */
