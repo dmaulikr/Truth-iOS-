@@ -4,12 +4,14 @@
 
 import Foundation
 
-class BungeeApiService {
+public class BungeeApiService {
     
     
     /** This function retrieves data for an entered user
      and displays their subclass and weapons */
-    func getUserData(bungeeRequest: String) {
+    public func getUserData(bungeeRequest: String) -> NSString {
+        //TODO delete, just using it for testing
+        var test : NSString = ""
         
         //TODO dont forget to explicitly end the session to avoid data leaks!
         let session = NSURLSession.sharedSession()
@@ -19,11 +21,12 @@ class BungeeApiService {
         request.addValue("ee2040efe9ef447f81aed2fe8ae794e3", forHTTPHeaderField: "X-API-Key")
         //cache policy?
         let task = session.dataTaskWithRequest(request) {(data, response, error) in
-            print(NSString(data: data!, encoding: NSUTF8StringEncoding))
+            test = (NSString(data: data!, encoding: NSUTF8StringEncoding))!
         }
         task.resume()
         //TODO add delegate / return to method, then extract rest of code from the viewController
 
+        return test
     }
 
     
